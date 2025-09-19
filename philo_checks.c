@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_checks.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: giomastr <giomastr@student.42.fr>          +#+  +:+       +#+        */
+/*   By: giomastr <giomastr@student.42firenze.it    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 17:10:52 by giomastr          #+#    #+#             */
-/*   Updated: 2025/09/18 18:46:08 by giomastr         ###   ########.fr       */
+/*   Updated: 2025/09/19 13:01:20 by giomastr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,16 +61,16 @@ int	ru_dead_yet(t_philo *phi)
 {
 	int		dead;
 	long	time_from_lm;
-	bool	survived;
 
 	dead = 0;
-	survived = false;
 	pthread_mutex_lock(&phi->meal_mutex);
 	time_from_lm = now_ms() - phi->last_meal;
 	if (phi->rules->n_meals != -1 && phi->meals_eaten
 		>= phi->rules->n_meals && !phi->survived)
 	{
+		pthread_mutex_lock(&phi->rules->stop_mutex);
 		phi->rules->n_survivors++;
+		pthread_mutex_unlock(&phi->rules->stop_mutex);
 		phi->survived = true;
 	}
 	pthread_mutex_unlock(&phi->meal_mutex);
@@ -86,10 +86,8 @@ int	ru_dead_yet(t_philo *phi)
 
 int	ru_full_yet(t_philo *phi)
 {
-	int	i;
 	int	full;
 
-	i = 0;
 	full = 0;
 	pthread_mutex_lock(&phi->meal_mutex);
 	if (phi->rules->n_meals > 0 && phi->meals_eaten >= phi->rules->n_meals)
